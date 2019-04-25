@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reddit Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <style>
+      div.card{
+        overflow:auto;
+      }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar is-info">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEs2FEqEFZy233jiDRk-MKNmW1H4Jn6LOHURPkDfKTAOR-sMZ3Ww">
+        <br><p class="subtitle"><span style="color:gold">S</span>earch <span style="color:gold">R</span>eddit</p>
+      </div>
+    </div><!--End of navbar brand-->
+  </nav>
+  <div class="section">
+  <section class="container">
+    <div class="card">
+      <div class="card-image">
+        <div class="field has-text-centered">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEs2FEqEFZy233jiDRk-MKNmW1H4Jn6LOHURPkDfKTAOR-sMZ3Ww" width="80">
+        </div><!-- End of image field-->
+      </div><!--End of card image-->
+      <div class="card-content">
+        <div class="field">
+          <label class="label">
+            Search Reddit
+          </label>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input class="input" placeholder="Enter Search Query">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+           <strong>Sort by:</strong> <select class="select">
+             <option value="Relevance">Relevance</option>
+             <option value="Latest"> Latest</option>
+             <option value="Hot">Hot</option>
+             <option value="Top">Top</option>
+           </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">
+            Limit
+          </label>
+          <div class="control">
+            <input class="input" type="number" placeholder="Enter number of search results">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input class="button is-link" type="submit" value="Search">
+          </div>
+        </div>
+      </div><!--End of card-content-->
+    </div><!--End of card-->
+  </section>
+  <section class="section has-text-centered">
+    <div id="display">
+    </div>
+  </section>
+  </div><!--End of container-->
+  
+  
+  
+  <script>
+    let inputs = document.querySelectorAll('input');
+    let sortBy = document.querySelector('select');
+    let searchQuery = inputs[0];
+    let limit = inputs[1];
+    let searchBtn = inputs[2];
+    searchBtn.addEventListener('click', getInputDetails);
+    
+    
+    function getInputDetails(){
+      inputDetails = [];
+      inputDetails.push(searchQuery.value);
+      inputDetails.push(sortBy.value);
+      inputDetails.push(limit.value);
+      if (inputDetails[0]===""){
+        alert('Enter a search query');
+        return false;
+        }
+      else if(inputDetails[2]==""){
+        inputDetails[2] = 25;
+        };
+     fetch(`https://www.reddit.com/search.json?q=${searchQuery.value}&sort=${sortBy.value}&limit=${limit.value}`)
+     .then(res=>res.json())
+     .then(data=>{let result = data;
+     process(data.data.children);
+     })
+     .catch(err=>console.log(err))
+     
+      
+     
+    function process(sth1){
+      let image;
+      let year;
+      let div = `<div class="columns is-multiline">`;
+      sth1.forEach((ele)=>{
+           if (ele.data.preview !=undefined){
+             image = ele.data.preview.images[0].source.url;
+             }
+           else{
+             image = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSacK2_7SOj0jxxAt9qqQZao0A9Eca7qtzBgjm8C7RkR1syAK4s";
+             }
+           year = new Date(ele.data.created*1000);
+        let col = `<div class="column is-one-third">
+                   <div class="card is-small">
+                   <div class="card-image">
+                   <figure class="image is-16by9">
+                   <img src="${image}" alt="Placeholder image">
+                   </figure>
+                   </div>
+                   <div class="card-content">
+                   <div class="media">
+                   <div class="media-left">
+                   <figure class="image is-48x48">
+                   <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTSHIvf3LG7_B4OkOe9RPCcKS9yIcgLghaSgZcpCUSFxsNg6HMQ" alt="Placeholder image">
+                   </figure>
+                   </div>
+                   <div class="media-content">
+                   <p class="title is-4">${ele.data.title}</p>
+                   <p class="subtitle is-6">@${ele.data.author_fullname}</p>
+                   </div>
+                   </div>
+                   
+                   <div class="content">
+                   <a>
+                    ${ele.data.selftext.substring(0,150)}...</a>
+                   <br><br><a target="_blank" class="button is-success" href="${ele.data.url}">See more</a>
+                   <br><br>
+                   <strong>Year:</strong> <time>${year.getFullYear()}</time>
+                   </div>
+                   </div>
+                   </div>
+                   </div>`
+        div+=col});
+        div+='</div>';
+        document.querySelector('#display').innerHTML = div;
+        };
+        };
+      
+      
+     
+       
+        
+      
+      
+      
+    
+  
+  </script>
+  </body>
+</html>
